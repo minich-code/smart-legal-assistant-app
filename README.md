@@ -1,0 +1,1 @@
+# smart-legal-assistant-app
