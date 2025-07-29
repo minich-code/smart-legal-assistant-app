@@ -1,0 +1,147 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "legal-assistant-app"
+version = "0.1.0"
+description = "An Enterprise-Grade RAG System for Legal Case Research and Analysis."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Western Onzere", email = "onzerewestern@gmail.com" }]
+maintainers = [{ name = "Western Onzere", email = "onzerewestern@gmail.com" }]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Linguistic",
+]
+keywords = [
+    "legal research",
+    "rag",
+    "retrieval augmented generation",
+    "legal ai",
+    "enterprise search",
+    "voyage ai",
+    "google gemini",
+    "natural language processing",
+    "legal tech",
+]
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "python-dotenv",
+    "pydantic",
+    "pydantic-settings",
+    "requests",
+    "pinecone",
+    "voyageai",
+    "langchain",
+    "python-multipart",
+    "aiofiles",
+    "httpx",
+    "tenacity",
+    "together",
+    "python-json-logger",
+    "pyyaml",
+    "hatch",
+    "hatchling",
+    "ensure",
+    "numpy",
+    "streamlit",
+    "types-PyYAML",
+    "python-box",
+    "tenacity",
+    "groq",
+    "supabase",
+    "slowapi",
+    "pymongo",
+    "motor",
+    "python-jose[cryptography]",
+    "streamlit",
+    "joblib"
+
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.3.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.2.0",
+    "pytest>=7.3.1",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pre-commit>=3.3.1",
+]
+docs = [
+    "mkdocs>=1.4.3",
+    "mkdocs-material>=9.1.5",
+    "mkdocstrings[python]>=0.21.2",
+]
+production = [
+    "gunicorn>=20.1.0",
+]
+
+[project.scripts]
+legal-rag = "backend.main:app"
+
+[project.urls]
+Homepage = "https://github.com/minich-code/legal-research.git"
+Documentation = "https://enterprise-legal-rag.readthedocs.io"
+"Bug Tracker" = "https://github.com/minich-code/legal-research.git"
+
+[tool.hatch.build]
+include = [
+    "backend/**/*.py",
+    "backend/**/*.json",
+    "backend/**/*.yml",
+    "src/**/*.py",
+    "LICENSE",
+    "README.md",
+]
+exclude = [
+    "**/__pycache__",
+    "**/*.pyc",
+    "tests/**",
+    "docs/**",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend", "src"]
+
+[tool.black]
+line-length = 88
+target-version = ["py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = "test_*.py"
+asyncio_mode = "auto"

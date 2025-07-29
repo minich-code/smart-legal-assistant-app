@@ -1,0 +1,24 @@
+embedding_models:
+  embedding_model_name: "voyage-law-2"
+vector_store:
+  index_name: "voyage-sections"
+  region: "us-east-1"
+  cloud: "aws"
+  embedding_dim: 1024
+retrieval:
+  top_k_candidates: 5
+reranker:
+  model_name: "rerank-2"
+  top_n: 10
+generation:
+  max_tokens: 1024
+  providers:
+    - model_name: "llama-3.3-70b-versatile"
+      provider: "groq"
+      priority: 1
+    - model_name: "deepseek-ai/DeepSeek-V3"
+      provider: "together"
+      priority: 2
+response:
+  #max_citations: 3
+  cot_template_path: "backend/src/prompt_template/cot_prompt_template.py"

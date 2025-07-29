@@ -1,0 +1,13 @@
+PyYAML~=6.0.2
+python-box~=7.3.2
+ensure~=1.0.4
+python-json-logger~=3.3.0
+fastapi~=0.116.1
+voyageai~=0.3.4
+tenacity~=9.1.2
+python-dotenv~=1.1.1
+joblib~=1.5.1
+backend~=0.2.4.1
+pinecone~=7.3.0
+groq~=0.30.0
+together~=1.5.21
