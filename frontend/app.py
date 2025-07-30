@@ -1,9 +1,12 @@
-
-# frontend/app.py
-
 import streamlit as st
 import requests
 import os
+from dotenv import load_dotenv
+
+# --- Load environment variables from .env.locals ---
+# --- Load environment variables from .env.locals ---
+load_dotenv(dotenv_path="frontend/.env.locals")
+BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8000/query")
 
 # --- Page Configuration ---
 st.set_page_config(
@@ -13,10 +16,8 @@ st.set_page_config(
 )
 
 # --- Backend API URL ---
-# Use Streamlit secrets to store the API URL for deployment.
-# For local testing, it will fall back to the localhost address.
+# Use the environment variable from .env.locals, with a fallback for local testing
 BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8000/query")
-
 
 # --- UI Components ---
 st.title("⚖️ LegalAI Demo")
@@ -25,8 +26,6 @@ st.caption("A RAG-powered assistant for navigating Kenyan Corporate Law.")
 # Use a sidebar for inputs to keep the main chat interface clean
 with st.sidebar:
     st.header("Query Controls")
-    # In a real app, this might be a dropdown fetched from an API
-    # For a demo, a text input is fine.
     namespace = st.text_input(
         "Knowledge Base Namespace:",
         value="companies-act-2015-v1",
@@ -34,9 +33,7 @@ with st.sidebar:
     )
     st.info("This demo is configured to answer questions based on the **Kenya Companies Act, 2015**.")
 
-
 # --- Chat History Management ---
-# Initialize chat history in session state if it doesn't exist
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -44,7 +41,6 @@ if "messages" not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-
 
 # --- User Input and API Call ---
 if prompt := st.chat_input("Ask a legal question..."):
@@ -55,7 +51,6 @@ if prompt := st.chat_input("Ask a legal question..."):
 
     # Display AI response in a "thinking" state
     with st.chat_message("assistant"):
-        # Show a spinner while waiting for the backend response
         with st.spinner("Analyzing legal documents..."):
             try:
                 # Prepare the request payload
@@ -63,7 +58,7 @@ if prompt := st.chat_input("Ask a legal question..."):
 
                 # Send the request to the backend
                 response = requests.post(BACKEND_API_URL, json=payload)
-                response.raise_for_status() # Raise an exception for bad status codes (4xx or 5xx)
+                response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
 
                 # Parse the JSON response
                 data = response.json()
@@ -71,11 +66,9 @@ if prompt := st.chat_input("Ask a legal question..."):
                 citations = data.get("citations", [])
 
                 # --- Format and Display the Response ---
-
-                # 1. Display the main answer (it's already in Markdown)
                 st.markdown(answer)
 
-                # 2. Display the citations in an expander for a clean look
+                # Display the citations in an expander for a clean look
                 if citations:
                     with st.expander("Show Sources"):
                         for i, citation in enumerate(citations, 1):
@@ -87,12 +80,10 @@ if prompt := st.chat_input("Ask a legal question..."):
                             )
 
                 # Add the full response to session state
-                # Note: We display the formatted response, but could store the raw dict
-                full_response_content = st.session_state.messages.append({
+                st.session_state.messages.append({
                     "role": "assistant",
-                    "content": answer # Storing just the answer for simplicity in history
+                    "content": answer  # Storing just the answer for simplicity in history
                 })
-
 
             except requests.exceptions.RequestException as e:
                 error_message = f"Could not connect to the backend API. Please make sure it's running. Error: {e}"
