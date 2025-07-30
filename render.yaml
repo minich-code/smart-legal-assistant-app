@@ -1,3 +1,32 @@
+## render.yaml
+## Place this file in the root of your project repository
+#
+#services:
+#  - type: web
+#    name: legal-rag-backend
+#    runtime: python
+#    region: frankfurt # Optional: choose a region close to you or your users
+#    plan: free # Or your preferred plan
+#    buildCommand: "pip install -r backend/requirements.txt"
+#    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+#    healthCheckPath: /
+#    envVars:
+#      - key: PYTHON_VERSION
+#        value: 3.11 # Specify the Python version you use
+#      # --- IMPORTANT ---
+#      # Add ALL your secret keys here.
+#      # The values will be set in the Render dashboard, not in this file.
+#      - key: MONGODB_URI
+#        sync: false
+#      - key: PINECONE_API_KEY
+#        sync: false
+#      - key: COHERE_API_KEY
+#        sync: false
+#      - key: VITE_SUPABASE_URL
+#        sync: false
+#      - key: VITE_SUPABASE_ANON_KEY
+#        sync: false
+
 # render.yaml
 # Place this file in the root of your project repository
 
@@ -8,7 +37,8 @@ services:
     region: frankfurt # Optional: choose a region close to you or your users
     plan: free # Or your preferred plan
     buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    # IMPORTANT: Adjust this if main.py is inside the 'backend' directory
+    startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
     healthCheckPath: /
     envVars:
       - key: PYTHON_VERSION
@@ -26,4 +56,3 @@ services:
         sync: false
       - key: VITE_SUPABASE_ANON_KEY
         sync: false
-
