@@ -3,14 +3,11 @@ import asyncio
 import os
 import time
 from typing import List, Dict, Any
-from dotenv import load_dotenv
 import voyageai
 from backend.src.utils.logger import logger
 from backend.src.utils.exception import LegalRAGException
 from backend.src.config_entity.config_params import RerankerConfig
 
-# Load .env file
-load_dotenv()
 
 # --- 3. Reranker Service ---
 class RerankerService:

@@ -39,5 +39,4 @@ class LLMConfig:
 @dataclass(frozen=True)
 class ResponseConfig:
     """Configuration for response generation and citation parameters."""
-    max_citations: int
     cot_template: str

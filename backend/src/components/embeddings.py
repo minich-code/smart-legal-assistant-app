@@ -4,14 +4,9 @@ import time
 from typing import List
 import voyageai
 from tenacity import retry, stop_after_attempt, wait_exponential
-from dotenv import load_dotenv
-
 from backend.src.utils.logger import logger
 from backend.src.utils.exception import LegalRAGException
-
 from backend.src.config_entity.config_params import EmbeddingConfig
-
-load_dotenv()
 
 # --- 3. The Embedding Service Class ---
 class EmbeddingService:

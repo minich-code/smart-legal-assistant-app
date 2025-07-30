@@ -6,10 +6,10 @@ vector_store:
   cloud: "aws"
   embedding_dim: 1024
 retrieval:
-  top_k_candidates: 5
+  top_k_candidates: 15
 reranker:
   model_name: "rerank-2"
-  top_n: 10
+  top_n: 7
 generation:
   max_tokens: 1024
   providers:

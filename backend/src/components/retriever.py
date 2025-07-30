@@ -1,14 +1,10 @@
 import asyncio
 import time
 from typing import List, Dict, Any, Optional
-from dotenv import load_dotenv
 from pinecone import Pinecone
 from backend.src.utils.exception import LegalRAGException
 from backend.src.utils.logger import logger
 from backend.src.config_entity.config_params import RetrievalConfig
-
-# Load environment variables from a .env file
-load_dotenv()
 
 # --- 3. Retrieval Service ---
 class RetrievalService:

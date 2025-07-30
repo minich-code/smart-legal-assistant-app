@@ -266,41 +266,42 @@ class ConfigurationManager:
 
     @_config_loader("LLM")
     def get_llm_config(self) -> LLMConfig:
-        """Extracts and validates LLM configuration, now consistent with other methods."""
-        # **FIX:** The internal try/except block has been removed.
-        # The decorator now handles all errors for this method.
-        gen_config = self.config['generation']
-        providers_data = gen_config.get('providers', [])
+        """Extracts and validates LLM configuration directly from YAML."""
+        try:
+            gen_config = self.config['generation']
+            providers_data = gen_config.get('providers', [])
 
-        if not providers_data:
-            raise ValueError("The 'providers' list is missing or empty.")
+            if not providers_data:
+                raise ValueError("The 'providers' list is missing or empty.")
 
-        for p in providers_data:
-            p.setdefault('priority', 999)
+            # Optional: Validate priorities still exist, even in the dictionary
+            for p in providers_data:
+                p.setdefault('priority', 999)
 
-        return LLMConfig(
-            max_tokens=gen_config.max_tokens,
-            providers=providers_data
-        )
+            return LLMConfig(
+                max_tokens=gen_config.max_tokens,
+                providers=providers_data
+            )
+        except (KeyError, AttributeError) as e:
+            logger.error(f"Error parsing LLM configuration: {e}")
+            raise LegalRAGException(e)
 
     @_config_loader("RESPONSE")
     def get_response_config(self) -> ResponseConfig:
-        """Extracts and validates response generation configuration."""
-        response_config = self.config['response']
+        """Extracts and validates response configuration from YAML."""
+        try:
+            response_config = self.config['response']
+            template_path_str = response_config.get('cot_template_path')
+            if not template_path_str:
+                raise ValueError("CoT template path not found in configuration.")
 
-        # Dynamically load the Chain of Thought (CoT) prompt template
-        template_path_str = response_config.cot_template_path
-        template_module_path = template_path_str.replace('/', '.').replace('.py', '')
-        module = import_module(template_module_path)
-        cot_template = getattr(module, 'COT_PROMPT_TEMPLATE')
+            template_path = template_path_str.replace('/', '.').replace('.py', '')
+            module = import_module(template_path)
+            cot_template = getattr(module, 'COT_PROMPT_TEMPLATE', None)
+            if not cot_template:
+                raise ValueError(f"COT_PROMPT_TEMPLATE not found in {template_path_str}")
 
-        # Use .get() to safely access 'max_citations' with a default fallback value.
-        # This makes the application more resilient to minor configuration errors.
-        max_citations_value = response_config.get('max_citations', 3)
-
-        logger.info(f"ResponseService will use a max of {max_citations_value} citations.")
-
-        return ResponseConfig(
-            max_citations=max_citations_value,
-            cot_template=cot_template
-        )
+            return ResponseConfig(cot_template=cot_template)
+        except Exception as e:
+            logger.error(f"Error loading response configuration: {e}")
+            raise LegalRAGException(e)

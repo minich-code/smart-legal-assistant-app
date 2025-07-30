@@ -6,8 +6,9 @@ from backend.src.config_settings.config_manager import ConfigurationManager
 from backend.src.components.embeddings import EmbeddingService
 from backend.src.components.retriever import RetrievalService
 from backend.src.components.reranker import RerankerService
-from backend.src.components.llm_service import LLMService
-from backend.src.components.response import ResponseService  # Using the refactored version
+from backend.src.components.llm_service import LLMService, LLMConfig
+# This class was refactored, and now the pipeline must adapt to it.
+from backend.src.components.response import ResponseService
 from backend.src.utils.exception import LegalRAGException
 from backend.src.utils.logger import logger
 
@@ -20,7 +21,6 @@ class LegalRAGPipeline:
             logger.info("Initializing LegalRAGPipeline...")
 
             # --- Service Initialization ---
-            # This part remains correct as it follows the DI pattern.
             embedding_config = config_manager.get_embedding_config()
             self.embedding_service = EmbeddingService(embedding_config)
 
@@ -31,10 +31,12 @@ class LegalRAGPipeline:
             self.reranker_service = RerankerService(reranker_config)
 
             llm_config = config_manager.get_llm_config()
-            self.llm_service = LLMService(llm_config)
+            self.llm_service = LLMService(llm_config) # The pipeline holds the LLM service
 
             response_config = config_manager.get_response_config()
-            self.response_service = ResponseService(response_config, self.llm_service)
+            # --- FIX 1: Initialize ResponseService the new, stateless way. ---
+            # It no longer needs the llm_service during initialization.
+            self.response_service = ResponseService(response_config)
 
             # Store the highest-priority model for easy access
             self.default_model_id = self._get_default_model_id(llm_config)
@@ -48,7 +50,6 @@ class LegalRAGPipeline:
         """Finds the model with the highest priority (lowest priority number)."""
         if not llm_config.providers:
             raise ValueError("No LLM providers configured.")
-        # Sort providers by priority and return the model name of the first one
         highest_priority_provider = min(llm_config.providers, key=lambda p: p.get('priority', 999))
         return highest_priority_provider['model_name']
 
@@ -79,12 +80,17 @@ class LegalRAGPipeline:
             reranked_docs = await self.reranker_service.rerank(query, retrieved_docs)
 
             # Step 4: Generate Final Response
-            # Use the provided model_id or fall back to the default one.
             final_model_id = model_id or self.default_model_id
             logger.info(f"Step 4: Generating final response with model '{final_model_id}'...")
 
-            # This call now works because the ResponseService is correctly aligned.
-            response = await self.response_service.generate_response(query, reranked_docs, final_model_id)
+            # --- FIX 2: Pass the llm_service instance into the generate_response method. ---
+            # This is where the dependency is now needed.
+            response = await self.response_service.generate_response(
+                query=query,
+                documents=reranked_docs,
+                model_id=final_model_id,
+                llm_service=self.llm_service  # Pass the pipeline's LLM service here
+            )
 
             elapsed_time = time.time() - start_time
             logger.info(f"Query processed successfully in {elapsed_time:.2f} seconds.")
@@ -95,7 +101,7 @@ class LegalRAGPipeline:
             raise LegalRAGException(e)
 
 
-# --- Test Function (Corrected) ---
+# --- Test Function (This remains correct) ---
 async def main():
     """Tests the full LegalRAGPipeline with a sample legal query."""
     try:
@@ -104,7 +110,6 @@ async def main():
         pipeline = LegalRAGPipeline(config_manager)
 
         query = "What is the statement of guarantee for company registration in Kenya?"
-        # Namespace must be provided for retrieval
         namespace = "companies-act-2015-v1"
 
         response = await pipeline.process_query(query=query, namespace=namespace)
@@ -114,7 +119,6 @@ async def main():
         logger.info("\nCitations:")
         if response['citations']:
             for i, citation in enumerate(response['citations'], 1):
-                # FIX: Use the correct keys from the citation dictionary
                 logger.info(f"  {i}. Section: {citation.get('section', 'N/A')}, "
                             f"Title: '{citation.get('title', 'N/A')}', "
                             f"Source: {citation.get('source_url', 'N/A')}")

@@ -1,18 +1,14 @@
-import os
+
 import asyncio
+import os
 import time
-from typing import List, Dict, Any
-from dotenv import load_dotenv
+from typing import Dict, Any
 from groq import AsyncGroq
-from together import Together
-
-from backend.src.utils.logger import logger
-from backend.src.utils.exception import LegalRAGException
 from tenacity import retry, stop_after_attempt, wait_exponential
+from together import Together
+from backend.src.utils.exception import LegalRAGException
+from backend.src.utils.logger import logger
 from backend.src.config_entity.config_params import LLMConfig
-
-# Load .env file
-load_dotenv()
 
 # --- 3. LLM Service (Adapted for Dictionary Config) ---
 class LLMService:
@@ -101,3 +97,5 @@ class LLMService:
                 # Tenacity will handle the retry logic based on this exception
 
         raise LegalRAGException(f"All providers for model '{model_id}' failed.")
+
+
