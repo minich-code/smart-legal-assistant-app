@@ -8,7 +8,7 @@
 #    region: frankfurt # Optional: choose a region close to you or your users
 #    plan: free # Or your preferred plan
 #    buildCommand: "pip install -r backend/requirements.txt"
-#    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+#    startCommand: "uvicorn backend main:app --host 0.0.0.0 --port $PORT"
 #    healthCheckPath: /
 #    envVars:
 #      - key: PYTHON_VERSION
@@ -36,7 +36,7 @@ services:
     runtime: python
     region: oregon # Optional: choose a region close to you or your users
     plan: free # Or your preferred plan
-    buildCommand: "pip install -r backend/requirements.txt"
+    buildCommand: "pip install -r requirements.txt"
     # IMPORTANT: Adjust this if main.py is inside the 'backend' directory
     startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
     healthCheckPath: /
