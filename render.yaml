@@ -34,7 +34,7 @@ services:
   - type: web
     name: legal-rag-backend
     runtime: python
-    region: frankfurt # Optional: choose a region close to you or your users
+    region: oregon # Optional: choose a region close to you or your users
     plan: free # Or your preferred plan
     buildCommand: "pip install -r backend/requirements.txt"
     # IMPORTANT: Adjust this if main.py is inside the 'backend' directory
